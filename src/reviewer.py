@@ -326,6 +326,24 @@ class CodeReviewAgent:
                 confidence=confidence,
             ))
 
+        # If LLM returned empty array despite instructions, add a fallback comment
+        if not comments:
+            comments.append(ReviewComment(
+                file_path=node.file_path,
+                node_name=node.name,
+                category="documentation",
+                severity="info",
+                line_hint="N/A",
+                title="No specific issues detected — consider adding documentation",
+                body=(
+                    f"The function/class '{node.name}' was reviewed and no critical issues were found. "
+                    "However, consider adding or improving docstrings, type annotations, and inline comments "
+                    "to improve long-term maintainability of this code."
+                ),
+                suggestion="Add a docstring explaining the purpose, parameters, and return value.",
+                confidence=55,
+            ))
+
         return comments
 
     # ------------------------------------------------------------------
