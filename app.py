@@ -267,11 +267,20 @@ def build_sidebar() -> dict:
             "openai": "gpt-4o-mini",
         }
         model = st.text_input("Model", value=model_defaults[provider])
-        api_key = st.text_input(
-            f"{'ANTHROPIC' if provider == 'anthropic' else 'OPENAI'} API Key",
-            type="password",
-            value=os.environ.get("ANTHROPIC_API_KEY" if provider == "anthropic" else "OPENAI_API_KEY", ""),
-        )
+        # Load from Streamlit secrets or env var — never shown in UI if pre-loaded
+        _env_key = "ANTHROPIC_API_KEY" if provider == "anthropic" else "OPENAI_API_KEY"
+        _prefilled_key = os.environ.get(_env_key, "")
+
+        if _prefilled_key:
+            st.success(f"✅ API key loaded from secrets")
+            api_key = _prefilled_key
+        else:
+            api_key = st.text_input(
+                f"{'ANTHROPIC' if provider == 'anthropic' else 'OPENAI'} API Key",
+                type="password",
+                placeholder="Paste your API key here",
+                value="",
+            )
 
     with st.sidebar.expander("🎛 Advanced"):
         max_files = st.slider("Max files to review", 5, 60, 20)
